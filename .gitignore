@@ -1,0 +1,22 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+
+# Local preview and debug logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# Local tooling artifacts
+/node_modules/
+/.vite/
+/dist/
+/build/
+/.wrangler/
+/.chrome-mobile-check/
+/.openai/
+/.agents/
+
+# Environment files
+.env*
