@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0f2f2d" />
     <title>Farsi Quest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <style>
       :root {
         --bg: #0a1117;
@@ -31,7 +34,7 @@
         --gradient-badge: linear-gradient(135deg, rgba(103, 232, 249, 0.26), rgba(134, 239, 172, 0.18));
         --shadow: 0 22px 58px rgba(0, 0, 0, 0.34);
         --font-app: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        --font-fa: "SF Arabic", "Geeza Pro", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
+        --font-fa: "Noto Naskh Arabic", "Geeza Pro", "SF Arabic", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
       }
 
       * {
@@ -114,7 +117,7 @@
         color: var(--accent-ink);
         font-family: var(--font-fa);
         font-size: 1.7rem;
-        font-weight: 900;
+        font-weight: 800;
         box-shadow: 0 12px 28px rgba(103, 232, 249, 0.22);
       }
 
@@ -158,7 +161,9 @@
       .alphabet-button,
       .icon-button,
       .form-card,
-      .word-card {
+      .word-card,
+      .game-tab,
+      .game-choice {
         border: 1px solid var(--line);
         border-radius: 8px;
         color: var(--ink);
@@ -176,7 +181,7 @@
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         font-family: var(--font-fa);
         font-size: 2rem;
-        font-weight: 900;
+        font-weight: 800;
         line-height: 1;
         transition:
           transform 150ms ease,
@@ -202,6 +207,39 @@
         direction: rtl;
       }
 
+      .alphabet-status {
+        position: absolute;
+        inset-block-start: 5px;
+        inset-inline-end: 6px;
+        width: 16px;
+        height: 16px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        background: rgba(134, 239, 172, 0.9);
+        color: #05201d;
+        font-family: var(--font-app);
+        font-size: 0.65rem;
+        font-weight: 950;
+        opacity: 0;
+        transform: scale(0.78);
+        transition:
+          opacity 150ms ease,
+          transform 150ms ease;
+      }
+
+      .alphabet-button.is-mastered {
+        border-color: rgba(134, 239, 172, 0.5);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 10px 24px rgba(134, 239, 172, 0.12);
+      }
+
+      .alphabet-button.is-mastered .alphabet-status {
+        opacity: 1;
+        transform: scale(1);
+      }
+
       .alphabet-button:nth-child(4n + 2) {
         background: var(--gradient-tile-b);
       }
@@ -222,14 +260,18 @@
       .alphabet-button:active,
       .form-card:active,
       .word-card:active,
-      .icon-button:active {
+      .icon-button:active,
+      .game-tab:active,
+      .game-choice:active {
         transform: scale(0.98);
       }
 
       .alphabet-button:focus-visible,
       .form-card:focus-visible,
       .word-card:focus-visible,
-      .icon-button:focus-visible {
+      .icon-button:focus-visible,
+      .game-tab:focus-visible,
+      .game-choice:focus-visible {
         outline: 3px solid rgba(103, 232, 249, 0.36);
         outline-offset: 2px;
       }
@@ -291,7 +333,7 @@
         font-family: var(--font-fa);
         font-size: 4.9rem;
         line-height: 0.95;
-        font-weight: 950;
+        font-weight: 800;
         direction: rtl;
       }
 
@@ -395,7 +437,7 @@
       .form-glyph {
         font-family: var(--font-fa);
         font-size: 2.85rem;
-        font-weight: 950;
+        font-weight: 800;
         line-height: 1;
         direction: rtl;
       }
@@ -411,18 +453,10 @@
         font-weight: 950;
       }
 
-      .form-word small {
-        display: block;
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 800;
-        line-height: 1.25;
-      }
-
       .farsi-word {
         font-family: var(--font-fa);
         font-size: 1.75rem;
-        font-weight: 900;
+        font-weight: 700;
         line-height: 1.15;
         direction: rtl;
         unicode-bidi: isolate;
@@ -433,6 +467,535 @@
         font-size: 0.84rem;
         font-weight: 800;
         line-height: 1.25;
+      }
+
+      .game-shell {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background:
+          linear-gradient(150deg, rgba(7, 19, 25, 0.78), rgba(8, 14, 20, 0.54)),
+          var(--gradient-panel);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .game-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .game-tab {
+        min-width: 0;
+        min-height: 48px;
+        display: grid;
+        grid-template-columns: 20px minmax(0, auto);
+        place-content: center;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 950;
+        transition:
+          transform 150ms ease,
+          background 150ms ease,
+          color 150ms ease,
+          border-color 150ms ease;
+      }
+
+      .game-tab[aria-selected="true"] {
+        border-color: transparent;
+        background: var(--gradient-brand);
+        color: var(--accent-ink);
+        box-shadow: 0 12px 26px rgba(103, 232, 249, 0.18);
+      }
+
+      .tab-icon {
+        width: 20px;
+        height: 20px;
+        display: block;
+        position: relative;
+      }
+
+      .bubble-icon {
+        border-radius: 999px;
+        background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(103, 232, 249, 0.92) 34%, rgba(103, 232, 249, 0.22) 70%);
+      }
+
+      .bridge-icon::before,
+      .bridge-icon::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 6px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .bridge-icon::before {
+        top: 4px;
+        transform: rotate(-8deg);
+      }
+
+      .bridge-icon::after {
+        bottom: 4px;
+        transform: rotate(8deg);
+      }
+
+      .jump-icon {
+        border-radius: 50% 50% 45% 45%;
+        background: currentColor;
+      }
+
+      .jump-icon::after {
+        content: "";
+        position: absolute;
+        right: -5px;
+        bottom: -2px;
+        width: 13px;
+        height: 5px;
+        border-radius: 999px;
+        background: currentColor;
+        transform: rotate(-16deg);
+      }
+
+      .game-stage {
+        min-height: 322px;
+        position: relative;
+        padding: 12px;
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at top left, rgba(103, 232, 249, 0.16), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(249, 168, 212, 0.14), transparent 35%),
+          rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .quest-hud {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .quest-stats {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 950;
+      }
+
+      .heart-row,
+      .streak-pill {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .heart-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50% 50% 46% 46%;
+        background: var(--accent-3);
+        box-shadow: 0 0 16px rgba(249, 168, 212, 0.34);
+        transform: rotate(45deg);
+      }
+
+      .heart-dot.is-empty {
+        background: rgba(255, 255, 255, 0.16);
+        box-shadow: none;
+      }
+
+      .quest-meter {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.11);
+      }
+
+      .quest-meter span {
+        width: var(--quest-progress, 0%);
+        height: 100%;
+        display: block;
+        border-radius: inherit;
+        background: var(--gradient-brand);
+        box-shadow: 0 0 20px rgba(103, 232, 249, 0.28);
+        transition: width 240ms ease;
+      }
+
+      .quest-scene {
+        min-height: 132px;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr) 76px;
+        align-items: center;
+        gap: 12px;
+        padding: 13px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 14% 18%, rgba(253, 230, 138, 0.16), transparent 32%),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+      }
+
+      .mascot-orb {
+        width: 66px;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border-radius: 24px 24px 20px 20px;
+        background: var(--gradient-brand);
+        color: var(--accent-ink);
+        font-family: var(--font-fa);
+        font-size: 2.6rem;
+        font-weight: 800;
+        line-height: 1;
+        direction: rtl;
+        box-shadow: 0 18px 34px rgba(103, 232, 249, 0.2);
+        animation: mascotBounce 2.8s ease-in-out infinite;
+      }
+
+      .quest-copy {
+        min-width: 0;
+        display: grid;
+        gap: 4px;
+      }
+
+      .quest-copy strong {
+        font-size: 1.08rem;
+        font-weight: 950;
+      }
+
+      .quest-copy small {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 850;
+        line-height: 1.25;
+      }
+
+      .target-card {
+        min-width: 0;
+        display: grid;
+        justify-items: center;
+        gap: 5px;
+        padding: 9px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .target-card strong {
+        font-family: var(--font-fa);
+        color: var(--accent);
+        font-size: 2.35rem;
+        font-weight: 800;
+        line-height: 1;
+        direction: rtl;
+      }
+
+      .target-card small {
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      .quest-track {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        gap: 5px;
+        margin: 11px 0;
+      }
+
+      .quest-step {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+      }
+
+      .quest-step.is-done {
+        background: var(--gradient-brand);
+        box-shadow: 0 0 14px rgba(103, 232, 249, 0.24);
+      }
+
+      .quest-choices {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .quest-choices .game-choice {
+        min-height: 70px;
+      }
+
+      .level-complete {
+        min-height: 294px;
+        display: grid;
+        place-items: center;
+        gap: 12px;
+        padding: 18px;
+        text-align: center;
+      }
+
+      .reward-badge {
+        width: 96px;
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        border-radius: 28px;
+        background: var(--gradient-brand);
+        color: var(--accent-ink);
+        font-family: var(--font-fa);
+        font-size: 3.7rem;
+        font-weight: 800;
+        line-height: 1;
+        direction: rtl;
+        box-shadow: 0 22px 50px rgba(103, 232, 249, 0.26);
+        animation: rewardPop 520ms cubic-bezier(0.2, 1.5, 0.35, 1);
+      }
+
+      .level-complete strong {
+        font-size: 1.22rem;
+        font-weight: 950;
+      }
+
+      .level-complete p {
+        max-width: 28rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 850;
+        line-height: 1.35;
+      }
+
+      .quest-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .quest-action {
+        min-height: 48px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: var(--gradient-brand);
+        color: var(--accent-ink);
+        cursor: pointer;
+        font-weight: 950;
+      }
+
+      .quest-action.secondary {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.09);
+        color: var(--ink);
+      }
+
+      .game-prompt {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .game-prompt strong {
+        font-size: 0.98rem;
+        font-weight: 950;
+      }
+
+      .game-target {
+        min-width: 58px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--accent);
+        font-family: var(--font-fa);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        direction: rtl;
+      }
+
+      .game-feedback {
+        min-height: 20px;
+        margin-top: 8px;
+        color: var(--accent-2);
+        font-size: 0.84rem;
+        font-weight: 950;
+        text-align: right;
+      }
+
+      .bubble-field {
+        position: relative;
+        min-height: 176px;
+      }
+
+      .bubble {
+        width: min(34%, 112px);
+        aspect-ratio: 1;
+        position: absolute;
+        display: grid;
+        place-items: center;
+        padding: 8px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.92), rgba(103, 232, 249, 0.42) 28%, rgba(103, 232, 249, 0.16) 70%),
+          rgba(255, 255, 255, 0.08);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.4),
+          0 16px 32px rgba(0, 0, 0, 0.24);
+        animation: floatBubble 3.8s ease-in-out infinite;
+      }
+
+      .bubble:nth-child(1) {
+        left: 1%;
+        top: 8%;
+      }
+
+      .bubble:nth-child(2) {
+        left: 34%;
+        top: 1%;
+        animation-delay: -1.1s;
+      }
+
+      .bubble:nth-child(3) {
+        right: 1%;
+        top: 17%;
+        animation-delay: -2.2s;
+      }
+
+      .bubble:nth-child(4) {
+        left: 13%;
+        bottom: 0;
+        animation-delay: -0.6s;
+      }
+
+      .bubble:nth-child(5) {
+        right: 16%;
+        bottom: 4%;
+        animation-delay: -1.7s;
+      }
+
+      .bubble .farsi-word {
+        font-size: clamp(1.08rem, 5vw, 1.45rem);
+      }
+
+      .bridge-track {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: end;
+        gap: 6px;
+        min-height: 58px;
+        margin: 6px 0 12px;
+      }
+
+      .bridge-plank {
+        height: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        transform: rotate(-3deg);
+      }
+
+      .bridge-plank:nth-child(even) {
+        transform: rotate(3deg);
+      }
+
+      .bridge-plank.is-built {
+        background: var(--gradient-brand);
+        box-shadow: 0 8px 18px rgba(103, 232, 249, 0.18);
+      }
+
+      .choice-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .game-choice {
+        min-width: 0;
+        min-height: 62px;
+        display: grid;
+        place-items: center;
+        padding: 8px;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)),
+          rgba(8, 14, 20, 0.36);
+        transition:
+          transform 150ms ease,
+          border-color 150ms ease,
+          filter 150ms ease;
+      }
+
+      .game-choice .farsi-word {
+        font-size: clamp(1.1rem, 4vw, 1.58rem);
+      }
+
+      .jump-track {
+        min-height: 80px;
+        position: relative;
+        margin: 4px 0 14px;
+        border-bottom: 3px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .runner {
+        width: 38px;
+        height: 38px;
+        position: absolute;
+        left: calc(var(--jump-step, 0) * 28%);
+        bottom: 8px;
+        border-radius: 50% 50% 44% 44%;
+        background: var(--gradient-brand);
+        box-shadow: 0 10px 24px rgba(103, 232, 249, 0.2);
+        transition: left 220ms ease, transform 220ms ease;
+      }
+
+      .runner::after {
+        content: "";
+        position: absolute;
+        right: -10px;
+        bottom: 3px;
+        width: 18px;
+        height: 7px;
+        border-radius: 999px;
+        background: #fde68a;
+        transform: rotate(-16deg);
+      }
+
+      .obstacle {
+        width: 24px;
+        height: 32px;
+        position: absolute;
+        right: 9%;
+        bottom: 6px;
+        border-radius: 6px 6px 2px 2px;
+        background: rgba(249, 168, 212, 0.72);
+      }
+
+      .stone-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .stone {
+        min-height: 66px;
+        border-radius: 999px;
+      }
+
+      .game-choice.is-hit {
+        border-color: rgba(134, 239, 172, 0.74);
+        filter: brightness(1.24);
+        transform: scale(1.05);
+      }
+
+      .game-choice.is-miss {
+        border-color: rgba(249, 168, 212, 0.84);
+        animation: shakeChoice 190ms ease-in-out;
       }
 
       .word-grid {
@@ -468,6 +1031,55 @@
       ::highlight(farsi-letter) {
         color: var(--accent);
         background: transparent;
+      }
+
+      @keyframes floatBubble {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-9px);
+        }
+      }
+
+      @keyframes shakeChoice {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+
+        35% {
+          transform: translateX(-4px);
+        }
+
+        70% {
+          transform: translateX(4px);
+        }
+      }
+
+      @keyframes mascotBounce {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-2deg);
+        }
+
+        50% {
+          transform: translateY(-7px) rotate(2deg);
+        }
+      }
+
+      @keyframes rewardPop {
+        0% {
+          opacity: 0;
+          transform: scale(0.72) rotate(-8deg);
+        }
+
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0);
+        }
       }
 
       @media (min-width: 700px) {
@@ -554,6 +1166,121 @@
         .farsi-word {
           font-size: 1.55rem;
         }
+
+        .section {
+          margin-top: 20px;
+          padding-top: 18px;
+        }
+
+        .game-shell {
+          padding: 10px;
+        }
+
+        .game-tabs {
+          gap: 6px;
+        }
+
+        .game-tab {
+          min-height: 42px;
+          grid-template-columns: 17px minmax(0, auto);
+          gap: 5px;
+          font-size: 0.78rem;
+        }
+
+        .tab-icon {
+          width: 17px;
+          height: 17px;
+        }
+
+        .game-stage {
+          min-height: 304px;
+          padding: 10px;
+        }
+
+        .quest-stats {
+          font-size: 0.74rem;
+        }
+
+        .quest-scene {
+          grid-template-columns: 54px minmax(0, 1fr) 60px;
+          min-height: 112px;
+          gap: 8px;
+          padding: 10px;
+        }
+
+        .mascot-orb {
+          width: 52px;
+          border-radius: 18px;
+          font-size: 2.05rem;
+        }
+
+        .quest-copy strong {
+          font-size: 0.98rem;
+        }
+
+        .quest-copy small {
+          font-size: 0.74rem;
+        }
+
+        .target-card {
+          padding: 7px;
+        }
+
+        .target-card strong {
+          font-size: 1.88rem;
+        }
+
+        .quest-track {
+          gap: 4px;
+          margin: 9px 0;
+        }
+
+        .quest-choices .game-choice {
+          min-height: 60px;
+        }
+
+        .level-complete {
+          min-height: 276px;
+          padding: 14px;
+        }
+
+        .reward-badge {
+          width: 78px;
+          border-radius: 22px;
+          font-size: 3rem;
+        }
+
+        .game-target {
+          min-width: 50px;
+          height: 40px;
+          font-size: 1.72rem;
+        }
+
+        .bubble-field {
+          min-height: 158px;
+        }
+
+        .bubble {
+          width: min(36%, 98px);
+        }
+
+        .choice-grid,
+        .stone-row {
+          gap: 7px;
+        }
+
+        .game-choice {
+          min-height: 56px;
+        }
+
+        .bridge-track {
+          min-height: 50px;
+          margin-bottom: 10px;
+        }
+
+        .stone {
+          min-height: 58px;
+        }
       }
 
       @media (max-height: 620px) {
@@ -605,6 +1332,16 @@
             <span id="formsCount"></span>
           </div>
           <div class="forms-grid" id="formsGrid"></div>
+        </section>
+
+        <section class="section play-section" aria-labelledby="playTitle">
+          <div class="section-title">
+            <h2 id="playTitle">Play</h2>
+            <span id="gameScore"></span>
+          </div>
+          <div class="game-shell">
+            <div class="game-stage" id="gameStage" aria-live="polite"></div>
+          </div>
         </section>
       </section>
     </main>
@@ -719,7 +1456,7 @@
         { fa: "کج", en: "crooked", translit: "kaj" },
         { fa: "قارچ", en: "mushroom", translit: "gharch" },
         { fa: "هیچ", en: "nothing", translit: "hich" },
-        { fa: "روح", en: "spirit", translit: "ruh" },
+        { fa: "لوح", en: "board", translit: "loh", audio: false },
         { fa: "محل", en: "place", translit: "mahal" },
         { fa: "صبح", en: "morning", translit: "sobh" },
         { fa: "رخ", en: "face", translit: "rokh" },
@@ -731,27 +1468,27 @@
         { fa: "قرص", en: "tablet", translit: "ghors" },
         { fa: "قصه", en: "story", translit: "ghesseh" },
         { fa: "رقص", en: "dance", translit: "raghs" },
-        { fa: "عرض", en: "width", translit: "arz" },
-        { fa: "مضر", en: "harmful", translit: "mozer" },
+        { fa: "حوض", en: "pond", translit: "howz", audio: false },
+        { fa: "فضا", en: "space", translit: "faza", audio: false },
         { fa: "بعض", en: "some", translit: "baz" },
-        { fa: "رباط", en: "strap", translit: "rebat" },
+        { fa: "حیاط", en: "yard", translit: "hayat", audio: false },
         { fa: "قطار", en: "train", translit: "ghatar" },
         { fa: "خط", en: "line", translit: "khat" },
         { fa: "لحاظ", en: "regard", translit: "lehaz" },
         { fa: "منظم", en: "neat", translit: "monazam" },
         { fa: "لفظ", en: "word", translit: "lafz" },
-        { fa: "فرع", en: "branch", translit: "far" },
+        { fa: "شروع", en: "start", translit: "shoru", audio: false },
         { fa: "معلم", en: "teacher", translit: "moallem" },
         { fa: "شمع", en: "candle", translit: "sham" },
-        { fa: "فارغ", en: "free", translit: "faregh" },
+        { fa: "باغ", en: "garden", translit: "bagh", audio: false },
         { fa: "مغازه", en: "shop", translit: "maghaze" },
-        { fa: "تیغ", en: "blade", translit: "tigh" },
+        { fa: "جیغ", en: "scream", translit: "jigh", audio: false },
         { fa: "کف", en: "palm", translit: "kaf" },
         { fa: "برق", en: "electricity", translit: "bargh" },
         { fa: "بقال", en: "grocer", translit: "baghal" },
         { fa: "درک", en: "understanding", translit: "dark" },
         { fa: "مکان", en: "place", translit: "makan" },
-        { fa: "مرگ", en: "death", translit: "marg" },
+        { fa: "بزرگ", en: "big", translit: "bozorg", audio: false },
         { fa: "سنگ", en: "stone", translit: "sang" },
         { fa: "نمک", en: "salt", translit: "namak" },
         { fa: "بهار", en: "spring", translit: "bahar" },
@@ -764,6 +1501,20 @@
         final: "End",
       };
 
+      const LEVEL_ROUNDS = 8;
+      const MAX_HEARTS = 3;
+      const STORAGE_KEY = "farsiQuestProgressV1";
+      const QUEST_STEPS = [
+        { kind: "find", title: "Find the shape", subtitle: "Pick the word that uses it." },
+        { kind: "sound", title: "Hear it", subtitle: "Tap the word that matches." },
+        { kind: "build", title: "Build the path", subtitle: "Each right word adds a step." },
+        { kind: "dash", title: "Jump ahead", subtitle: "Keep the streak going." },
+        { kind: "find", title: "Spot it again", subtitle: "Look inside the word." },
+        { kind: "build", title: "Make it stronger", subtitle: "Choose carefully." },
+        { kind: "dash", title: "Almost there", subtitle: "One more clean read." },
+        { kind: "boss", title: "Final gate", subtitle: "Clear the letter." },
+      ];
+
       const nodes = {
         homeView: document.getElementById("homeView"),
         lessonView: document.getElementById("lessonView"),
@@ -774,9 +1525,21 @@
         soundText: document.getElementById("soundText"),
         formsCount: document.getElementById("formsCount"),
         formsGrid: document.getElementById("formsGrid"),
+        gameScore: document.getElementById("gameScore"),
+        gameStage: document.getElementById("gameStage"),
       };
 
       let currentIndex = 0;
+      let savedProgress = loadProgress();
+      let gameState = {
+        round: 0,
+        score: 0,
+        hearts: MAX_HEARTS,
+        streak: 0,
+        misses: 0,
+        feedback: "",
+        complete: false,
+      };
 
       function getFormPosition(form) {
         const joinsBefore = form.startsWith(TATWEEL);
@@ -883,6 +1646,129 @@
         return FORM_LABELS[getFormPosition(form)];
       }
 
+      function loadProgress() {
+        if (typeof localStorage === "undefined") return {};
+        try {
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch {
+          return {};
+        }
+      }
+
+      function saveProgress() {
+        if (typeof localStorage === "undefined") return;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(savedProgress));
+        } catch {
+          return;
+        }
+      }
+
+      function saveLetterProgress(index, stars) {
+        const current = savedProgress[index] || {};
+        savedProgress[index] = {
+          complete: true,
+          stars: Math.max(current.stars || 0, stars),
+        };
+        saveProgress();
+        renderHome();
+      }
+
+      function resetGameState() {
+        gameState = {
+          round: 0,
+          score: 0,
+          hearts: MAX_HEARTS,
+          streak: 0,
+          misses: 0,
+          feedback: "",
+          complete: false,
+        };
+      }
+
+      function shuffle(items) {
+        const next = [...items];
+        for (let index = next.length - 1; index > 0; index -= 1) {
+          const swapIndex = Math.floor(Math.random() * (index + 1));
+          [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+        }
+        return next;
+      }
+
+      function uniqueWords(words) {
+        const seen = new Set();
+        return words.filter((word) => {
+          if (seen.has(word.fa)) return false;
+          seen.add(word.fa);
+          return true;
+        });
+      }
+
+      function wordHasForm(word, letter, form) {
+        return getLetterOccurrencesInWord(word, letter).some((item) => item.form === form);
+      }
+
+      function getGameItems(letter) {
+        const seen = new Set();
+        const lessons = getFormLessons(letter)
+          .filter((lesson) => lesson.example)
+          .filter((lesson) => {
+            const key = `${lesson.form}-${lesson.example.word.fa}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+
+        if (lessons.length) {
+          return lessons.map((lesson) => ({
+            form: lesson.form,
+            label: getFormLabel(letter, lesson.form),
+            position: lesson.position,
+            word: lesson.example.word,
+          }));
+        }
+
+        return [
+          {
+            form: letter.glyph,
+            label: "Letter",
+            position: "isolated",
+            word: getWordsForLetter(letter)[0] || WORDS[0],
+          },
+        ];
+      }
+
+      function getDistractorWords(letter, target) {
+        const allWords = uniqueWords([...getFormWordsForLetter(letter), ...WORDS, ...FORM_WORDS]);
+        const sameLetterWords = allWords.filter(
+          (word) =>
+            word.fa !== target.word.fa &&
+            getLetterOccurrencesInWord(word, letter).length > 0 &&
+            !wordHasForm(word, letter, target.form),
+        );
+        const otherWords = allWords.filter(
+          (word) =>
+            word.fa !== target.word.fa &&
+            !wordHasForm(word, letter, target.form) &&
+            !sameLetterWords.some((sameLetterWord) => sameLetterWord.fa === word.fa),
+        );
+
+        return uniqueWords([...shuffle(sameLetterWords), ...shuffle(otherWords)]);
+      }
+
+      function getRoundTarget(letter) {
+        const items = getGameItems(letter);
+        return items[gameState.round % items.length];
+      }
+
+      function getRoundChoices(letter, target, count) {
+        const distractors = getDistractorWords(letter, target).slice(0, count - 1);
+        return shuffle([target.word, ...distractors]).map((word) => ({
+          word,
+          isCorrect: word.fa === target.word.fa,
+        }));
+      }
+
       function escapeHtml(value) {
         return value
           .replaceAll("&", "&amp;")
@@ -899,6 +1785,7 @@
       }
 
       function getWordAudioPath(word) {
+        if (word.audio === false) return "";
         return `audio/words/${audioSlug(word.translit)}.mp3`;
       }
 
@@ -907,18 +1794,189 @@
         return `<span class="farsi-word" dir="rtl" data-highlight-glyphs="${escapeHtml(glyphs)}">${escapeHtml(word.fa)}</span>`;
       }
 
+      function getQuestStep() {
+        return QUEST_STEPS[Math.min(gameState.round, QUEST_STEPS.length - 1)];
+      }
+
+      function getEarnedStars() {
+        if (gameState.misses === 0) return 3;
+        if (gameState.misses <= 2) return 2;
+        return 1;
+      }
+
+      function renderHearts() {
+        return Array.from(
+          { length: MAX_HEARTS },
+          (_, index) => `<span class="heart-dot ${index < gameState.hearts ? "" : "is-empty"}" aria-hidden="true"></span>`,
+        ).join("");
+      }
+
+      function renderQuestTrack() {
+        return Array.from(
+          { length: LEVEL_ROUNDS },
+          (_, index) => `<span class="quest-step ${index < gameState.round ? "is-done" : ""}"></span>`,
+        ).join("");
+      }
+
+      function renderGameFeedback() {
+        return `<div class="game-feedback">${escapeHtml(gameState.feedback)}</div>`;
+      }
+
+      function renderGameChoice(choice, letter) {
+        return `
+          <button class="game-choice" type="button" data-game-choice data-correct="${choice.isCorrect}" data-audio="${getWordAudioPath(choice.word)}" data-speak="${escapeHtml(choice.word.fa)}">
+            ${wordMarkup(choice.word, letter)}
+          </button>
+        `;
+      }
+
+      function renderQuestHud() {
+        const progress = Math.round((gameState.round / LEVEL_ROUNDS) * 100);
+        return `
+          <div class="quest-hud">
+            <div class="quest-stats">
+              <span class="heart-row">${renderHearts()}</span>
+              <span class="streak-pill">Streak ${gameState.streak}</span>
+            </div>
+            <div class="quest-meter" style="--quest-progress: ${progress}%"><span></span></div>
+          </div>
+        `;
+      }
+
+      function renderQuestScene(letter, target, step) {
+        return `
+          <div class="quest-scene quest-${step.kind}">
+            <div class="mascot-orb" dir="rtl" aria-hidden="true">${escapeHtml(letter.glyph)}</div>
+            <div class="quest-copy">
+              <strong>${escapeHtml(step.title)}</strong>
+              <small>${escapeHtml(step.subtitle)}</small>
+            </div>
+            <div class="target-card">
+              <strong dir="rtl">${escapeHtml(target.form)}</strong>
+              <small>${escapeHtml(target.label)}</small>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderLevelComplete(letter) {
+        const stars = getEarnedStars();
+        nodes.gameScore.textContent = `${stars} stars`;
+        return `
+          <div class="level-complete">
+            <div class="reward-badge" dir="rtl">${escapeHtml(letter.glyph)}</div>
+            <strong>Letter cleared</strong>
+            <p>${escapeHtml(letter.name)} cleared with ${stars} star${stars === 1 ? "" : "s"}.</p>
+            <div class="quest-actions">
+              <button class="quest-action secondary" type="button" data-game-action="replay">Replay</button>
+              <button class="quest-action" type="button" data-game-action="next">Next letter</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderGame() {
+        const letter = LETTERS[currentIndex];
+        nodes.gameStage.dataset.busy = "false";
+
+        if (gameState.complete) {
+          nodes.gameStage.innerHTML = renderLevelComplete(letter);
+          return;
+        }
+
+        const target = getRoundTarget(letter);
+        const step = getQuestStep();
+        const choices = getRoundChoices(letter, target, step.kind === "boss" ? 5 : 4);
+
+        nodes.gameScore.textContent = `${gameState.round}/${LEVEL_ROUNDS}`;
+        nodes.gameStage.innerHTML = `
+          ${renderQuestHud()}
+          ${renderQuestScene(letter, target, step)}
+          <div class="quest-track" aria-hidden="true">${renderQuestTrack()}</div>
+          <div class="choice-grid quest-choices">
+            ${choices.map((choice) => renderGameChoice(choice, letter)).join("")}
+          </div>
+          ${renderGameFeedback()}
+        `;
+        applyTextHighlights();
+      }
+
+      function completeGame() {
+        gameState.complete = true;
+        gameState.feedback = "";
+        saveLetterProgress(currentIndex, getEarnedStars());
+        renderGame();
+      }
+
+      function advanceGame() {
+        gameState.round += 1;
+        gameState.streak += 1;
+        gameState.score += 10 + Math.min(gameState.streak, 5) * 2;
+        gameState.feedback = gameState.streak >= 3 ? `Combo ${gameState.streak}` : "Nice";
+
+        if (gameState.round >= LEVEL_ROUNDS) {
+          completeGame();
+          return;
+        }
+
+        renderGame();
+      }
+
+      function missGameChoice(button) {
+        button.classList.add("is-miss");
+        gameState.misses += 1;
+        gameState.streak = 0;
+        gameState.hearts -= 1;
+        gameState.feedback = gameState.hearts <= 0 ? "Hearts refilled" : "Try again";
+        if (gameState.hearts <= 0) gameState.hearts = MAX_HEARTS;
+        window.setTimeout(renderGame, 240);
+      }
+
+      function handleGameChoice(button) {
+        if (nodes.gameStage.dataset.busy === "true" || gameState.complete) return;
+
+        const isCorrect = button.dataset.correct === "true";
+        if (!isCorrect) {
+          missGameChoice(button);
+          return;
+        }
+
+        nodes.gameStage.dataset.busy = "true";
+        button.classList.add("is-hit");
+        playAudio(button.dataset.audio, button.dataset.speak);
+        window.setTimeout(advanceGame, 300);
+      }
+
+      function handleGameAction(action) {
+        if (action === "replay") {
+          resetGameState();
+          renderGame();
+          return;
+        }
+
+        if (action === "next") {
+          resetGameState();
+          goToLetter((currentIndex + 1) % LETTERS.length);
+        }
+      }
+
       function renderHome() {
         nodes.alphabetGrid.innerHTML = LETTERS.map(
-          (letter, index) =>
-            `<button class="alphabet-button" type="button" data-index="${index}" aria-label="${index + 1}. ${letter.name}">
+          (letter, index) => {
+            const isMastered = Boolean(savedProgress[index]?.complete);
+            return `<button class="alphabet-button ${isMastered ? "is-mastered" : ""}" type="button" data-index="${index}" aria-label="${index + 1}. ${letter.name}">
               <span class="alphabet-number">${index + 1}</span>
               <span class="alphabet-glyph">${letter.glyph}</span>
-            </button>`,
+              <span class="alphabet-status" aria-hidden="true">✓</span>
+            </button>`;
+          },
         ).join("");
       }
 
       function renderLetter(index) {
-        currentIndex = (index + LETTERS.length) % LETTERS.length;
+        const nextIndex = (index + LETTERS.length) % LETTERS.length;
+        if (nextIndex !== currentIndex) resetGameState();
+        currentIndex = nextIndex;
         const letter = LETTERS[currentIndex];
         const formLessons = getFormLessons(letter);
 
@@ -934,7 +1992,6 @@
                   ${wordMarkup(lesson.example.word, letter)}
                   <span>
                     <strong>${escapeHtml(lesson.example.word.en)}</strong>
-                    <small>${escapeHtml(lesson.example.word.translit)}</small>
                   </span>
                 </div>`
               : `<p class="empty-note">Shown by itself</p>`;
@@ -953,7 +2010,7 @@
 
         nodes.homeView.classList.add("hidden");
         nodes.lessonView.classList.remove("hidden");
-        applyTextHighlights();
+        renderGame();
       }
 
       function showHome() {
@@ -1004,6 +2061,11 @@
           activeAudio.currentTime = 0;
         }
 
+        if (!path) {
+          speak(fallbackText);
+          return;
+        }
+
         activeAudio = new Audio(path);
         activeAudio.play().catch(() => speak(fallbackText));
       }
@@ -1041,9 +2103,20 @@
 
       nodes.backButton.addEventListener("click", showHome);
       nodes.formsGrid.addEventListener("click", (event) => {
-        const button = event.target.closest("button[data-audio]");
-        if (!button || !button.dataset.audio) return;
+        const button = event.target.closest("button[data-speak]");
+        if (!button) return;
         playAudio(button.dataset.audio, button.dataset.speak);
+      });
+      nodes.gameStage.addEventListener("click", (event) => {
+        const actionButton = event.target.closest("button[data-game-action]");
+        if (actionButton) {
+          handleGameAction(actionButton.dataset.gameAction);
+          return;
+        }
+
+        const button = event.target.closest("button[data-game-choice]");
+        if (!button) return;
+        handleGameChoice(button);
       });
 
       window.addEventListener("hashchange", syncRoute);
