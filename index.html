@@ -157,6 +157,7 @@
 
       .alphabet-button,
       .icon-button,
+      .form-card,
       .word-card {
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -219,12 +220,14 @@
       }
 
       .alphabet-button:active,
+      .form-card:active,
       .word-card:active,
       .icon-button:active {
         transform: scale(0.98);
       }
 
       .alphabet-button:focus-visible,
+      .form-card:focus-visible,
       .word-card:focus-visible,
       .icon-button:focus-visible {
         outline: 3px solid rgba(103, 232, 249, 0.36);
@@ -368,11 +371,11 @@
       }
 
       .form-card {
+        width: 100%;
         min-width: 0;
-        min-height: 132px;
+        min-height: 154px;
         padding: 15px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
+        text-align: left;
         background:
           linear-gradient(145deg, rgba(8, 14, 20, 0.66), rgba(8, 14, 20, 0.38)),
           var(--gradient-card);
@@ -405,7 +408,21 @@
 
       .form-word {
         display: grid;
-        gap: 4px;
+        gap: 6px;
+      }
+
+      .form-word strong {
+        display: block;
+        font-size: 0.98rem;
+        font-weight: 950;
+      }
+
+      .form-word small {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+        line-height: 1.25;
       }
 
       .farsi-word {
@@ -418,7 +435,6 @@
         white-space: nowrap;
       }
 
-      .form-word small,
       .empty-note {
         font-size: 0.84rem;
         font-weight: 800;
@@ -594,18 +610,10 @@
 
         <section class="section" aria-labelledby="formsTitle">
           <div class="section-title">
-            <h2 id="formsTitle">Forms</h2>
+            <h2 id="formsTitle">Learn this letter</h2>
             <span id="formsCount"></span>
           </div>
           <div class="forms-grid" id="formsGrid"></div>
-        </section>
-
-        <section class="section" aria-labelledby="wordsTitle">
-          <div class="section-title">
-            <h2 id="wordsTitle">Words</h2>
-            <span>Tap to hear</span>
-          </div>
-          <div class="word-grid" id="wordGrid"></div>
         </section>
       </section>
     </main>
@@ -776,7 +784,6 @@
         soundText: document.getElementById("soundText"),
         formsCount: document.getElementById("formsCount"),
         formsGrid: document.getElementById("formsGrid"),
-        wordGrid: document.getElementById("wordGrid"),
       };
 
       let currentIndex = 0;
@@ -927,44 +934,35 @@
       function renderLetter(index) {
         currentIndex = (index + LETTERS.length) % LETTERS.length;
         const letter = LETTERS[currentIndex];
-        const words = getWordsForLetter(letter).slice(0, 4);
         const formLessons = getFormLessons(letter);
 
         nodes.letterName.textContent = `${letter.name} letter`;
         nodes.letterGlyph.textContent = letter.glyph;
         nodes.soundText.textContent = letter.sound;
-        nodes.formsCount.textContent = `${formLessons.length} forms`;
+        nodes.formsCount.textContent = "Tap to hear";
 
         nodes.formsGrid.innerHTML = formLessons
           .map((lesson) => {
             const detail = lesson.example
-              ? `<div class="form-word">${wordMarkup(lesson.example.word, letter)}</div>`
+              ? `<div class="form-word">
+                  ${wordMarkup(lesson.example.word, letter)}
+                  <span>
+                    <strong>${escapeHtml(lesson.example.word.en)}</strong>
+                    <small>${escapeHtml(lesson.example.word.translit)}</small>
+                  </span>
+                </div>`
               : `<p class="empty-note">Shown by itself</p>`;
 
             return `
-              <article class="form-card">
+              <button class="form-card" type="button" data-audio="${lesson.example ? getWordAudioPath(lesson.example.word) : ""}" data-speak="${lesson.example ? escapeHtml(lesson.example.word.fa) : ""}">
                 <div class="form-meta">
                   <span class="form-label">${getFormLabel(letter, lesson.form)}</span>
                   <span class="form-glyph" dir="rtl">${lesson.form}</span>
                 </div>
                 ${detail}
-              </article>
+              </button>
             `;
           })
-          .join("");
-
-        nodes.wordGrid.innerHTML = words
-          .map(
-            (word) => `
-              <button class="word-card" type="button" data-audio="${getWordAudioPath(word)}" data-speak="${escapeHtml(word.fa)}">
-                ${wordMarkup(word, letter)}
-                <span>
-                  <strong>${escapeHtml(word.en)}</strong>
-                  <small>${escapeHtml(word.translit)}</small>
-                </span>
-              </button>
-            `,
-          )
           .join("");
 
         nodes.homeView.classList.add("hidden");
@@ -1060,9 +1058,9 @@
         const letter = LETTERS[currentIndex];
         playAudio(getLetterAudioPath(currentIndex, letter), `حرف ${letter.glyph}`);
       });
-      nodes.wordGrid.addEventListener("click", (event) => {
+      nodes.formsGrid.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-audio]");
-        if (!button) return;
+        if (!button || !button.dataset.audio) return;
         playAudio(button.dataset.audio, button.dataset.speak);
       });
 
