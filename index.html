@@ -683,6 +683,54 @@
         { fa: "ماهی", en: "fish", translit: "mahi" },
       ];
 
+      const FORM_WORDS = [
+        { fa: "سپید", en: "white", translit: "sepid" },
+        { fa: "چپ", en: "left", translit: "chap" },
+        { fa: "ارث", en: "inheritance", translit: "ers" },
+        { fa: "مثل", en: "like", translit: "mesl" },
+        { fa: "بحث", en: "talk", translit: "bahs" },
+        { fa: "برج", en: "tower", translit: "borj" },
+        { fa: "کج", en: "crooked", translit: "kaj" },
+        { fa: "قارچ", en: "mushroom", translit: "gharch" },
+        { fa: "هیچ", en: "nothing", translit: "hich" },
+        { fa: "روح", en: "spirit", translit: "ruh" },
+        { fa: "محل", en: "place", translit: "mahal" },
+        { fa: "صبح", en: "morning", translit: "sobh" },
+        { fa: "رخ", en: "face", translit: "rokh" },
+        { fa: "مژده", en: "good news", translit: "mozhdeh" },
+        { fa: "بستنی", en: "ice cream", translit: "bastani" },
+        { fa: "نفس", en: "breath", translit: "nafas" },
+        { fa: "مشکل", en: "problem", translit: "moshkel" },
+        { fa: "کفش", en: "shoe", translit: "kafsh" },
+        { fa: "قرص", en: "tablet", translit: "ghors" },
+        { fa: "قصه", en: "story", translit: "ghesseh" },
+        { fa: "رقص", en: "dance", translit: "raghs" },
+        { fa: "عرض", en: "width", translit: "arz" },
+        { fa: "مضر", en: "harmful", translit: "mozer" },
+        { fa: "بعض", en: "some", translit: "baz" },
+        { fa: "رباط", en: "strap", translit: "rebat" },
+        { fa: "قطار", en: "train", translit: "ghatar" },
+        { fa: "خط", en: "line", translit: "khat" },
+        { fa: "لحاظ", en: "regard", translit: "lehaz" },
+        { fa: "منظم", en: "neat", translit: "monazam" },
+        { fa: "لفظ", en: "word", translit: "lafz" },
+        { fa: "فرع", en: "branch", translit: "far" },
+        { fa: "معلم", en: "teacher", translit: "moallem" },
+        { fa: "شمع", en: "candle", translit: "sham" },
+        { fa: "فارغ", en: "free", translit: "faregh" },
+        { fa: "مغازه", en: "shop", translit: "maghaze" },
+        { fa: "تیغ", en: "blade", translit: "tigh" },
+        { fa: "کف", en: "palm", translit: "kaf" },
+        { fa: "برق", en: "electricity", translit: "bargh" },
+        { fa: "بقال", en: "grocer", translit: "baghal" },
+        { fa: "درک", en: "understanding", translit: "dark" },
+        { fa: "مکان", en: "place", translit: "makan" },
+        { fa: "مرگ", en: "death", translit: "marg" },
+        { fa: "سنگ", en: "stone", translit: "sang" },
+        { fa: "نمک", en: "salt", translit: "namak" },
+        { fa: "بهار", en: "spring", translit: "bahar" },
+      ];
+
       const FORM_LABELS = {
         isolated: "Alone",
         initial: "Start",
@@ -775,10 +823,10 @@
         });
       }
 
-      function getWordsForLetter(letter) {
+      function getWordsContainingLetter(words, letter) {
         const acceptedGlyphs = new Set(getHighlightGlyphs(letter.glyph));
         const seen = new Set();
-        return WORDS.filter((word) => {
+        return words.filter((word) => {
           if (seen.has(word.fa)) return false;
           const hasLetter = Array.from(word.fa).some((character) => acceptedGlyphs.has(character));
           if (hasLetter) seen.add(word.fa);
@@ -786,8 +834,16 @@
         });
       }
 
+      function getWordsForLetter(letter) {
+        return getWordsContainingLetter(WORDS, letter);
+      }
+
+      function getFormWordsForLetter(letter) {
+        return getWordsContainingLetter([...WORDS, ...FORM_WORDS], letter);
+      }
+
       function getFormLessons(letter) {
-        const examples = getWordsForLetter(letter).flatMap((word) => getLetterOccurrencesInWord(word, letter));
+        const examples = getFormWordsForLetter(letter).flatMap((word) => getLetterOccurrencesInWord(word, letter));
         return letter.forms.map((form) => {
           const example = examples.find((item) => item.form === form);
           return {
