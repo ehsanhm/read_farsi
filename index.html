@@ -241,12 +241,8 @@
 
       .lesson-top {
         gap: 12px;
-        margin-bottom: 18px;
-      }
-
-      .lesson-actions {
-        display: flex;
-        gap: 8px;
+        justify-content: flex-start;
+        margin-bottom: 12px;
       }
 
       .icon-button {
@@ -261,17 +257,13 @@
         font-weight: 950;
       }
 
-      .icon-button.primary {
-        background: var(--gradient-brand);
-        color: var(--accent-ink);
-        border-color: transparent;
-      }
-
       .hero {
-        min-height: 178px;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 20px;
+        min-height: 124px;
+        display: grid;
+        justify-items: center;
+        gap: 8px;
+        padding: 16px;
+        text-align: center;
         border: 1px solid var(--line-strong);
         border-radius: 8px;
         background:
@@ -283,29 +275,31 @@
 
       .letter-stack {
         min-width: 0;
+        display: grid;
+        justify-items: center;
       }
 
       .lesson-name {
         display: block;
-        margin-bottom: 6px;
-        font-size: 0.86rem;
+        margin-bottom: 2px;
+        font-size: 0.78rem;
         font-weight: 900;
         text-transform: uppercase;
       }
 
       .big-letter {
         font-family: var(--font-fa);
-        font-size: 7rem;
+        font-size: 4.9rem;
         line-height: 0.95;
         font-weight: 950;
         direction: rtl;
       }
 
       .sound-panel {
-        min-width: 112px;
+        min-width: 0;
         display: grid;
-        gap: 8px;
-        justify-items: end;
+        gap: 5px;
+        justify-items: center;
       }
 
       .eyebrow {
@@ -315,11 +309,11 @@
       }
 
       .sound-text {
-        padding: 8px 12px;
+        padding: 6px 10px;
         border-radius: 8px;
         background: rgba(255, 255, 255, 0.12);
         color: var(--accent);
-        font-size: 1.05rem;
+        font-size: 0.95rem;
         font-weight: 950;
         white-space: nowrap;
       }
@@ -536,12 +530,12 @@
         }
 
         .hero {
-          min-height: 154px;
-          padding: 17px;
+          min-height: 112px;
+          padding: 14px;
         }
 
         .big-letter {
-          font-size: 5.5rem;
+          font-size: 4.15rem;
         }
 
         .forms-grid {
@@ -592,9 +586,6 @@
       <section class="view lesson-view hidden" id="lessonView" aria-label="Letter lesson">
         <header class="lesson-top">
           <button class="icon-button" id="backButton" type="button" aria-label="Back to alphabet">‹</button>
-          <div class="lesson-actions">
-            <button class="icon-button primary" id="listenButton" type="button" aria-label="Listen">♪</button>
-          </div>
         </header>
 
         <section class="hero">
@@ -778,7 +769,6 @@
         lessonView: document.getElementById("lessonView"),
         alphabetGrid: document.getElementById("alphabetGrid"),
         backButton: document.getElementById("backButton"),
-        listenButton: document.getElementById("listenButton"),
         letterName: document.getElementById("letterName"),
         letterGlyph: document.getElementById("letterGlyph"),
         soundText: document.getElementById("soundText"),
@@ -906,10 +896,6 @@
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-+|-+$/g, "");
-      }
-
-      function getLetterAudioPath(index, letter) {
-        return `audio/letters/${String(index + 1).padStart(2, "0")}-${audioSlug(letter.name)}.mp3`;
       }
 
       function getWordAudioPath(word) {
@@ -1054,10 +1040,6 @@
       });
 
       nodes.backButton.addEventListener("click", showHome);
-      nodes.listenButton.addEventListener("click", () => {
-        const letter = LETTERS[currentIndex];
-        playAudio(getLetterAudioPath(currentIndex, letter), `حرف ${letter.glyph}`);
-      });
       nodes.formsGrid.addEventListener("click", (event) => {
         const button = event.target.closest("button[data-audio]");
         if (!button || !button.dataset.audio) return;
