@@ -3,22 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#08090e" />
+    <meta name="theme-color" content="#0f2f2d" />
     <title>Farsi Quest</title>
     <style>
       :root {
-        --bg: #0b0d10;
-        --ink: #f7f7f2;
-        --muted: #9ba3ad;
-        --line: rgba(255, 255, 255, 0.12);
-        --line-strong: rgba(255, 255, 255, 0.18);
-        --surface: #15191f;
-        --surface-soft: #11151a;
-        --surface-strong: #1d232b;
-        --accent: #7dd3fc;
-        --accent-2: #6ee7b7;
-        --accent-ink: #061116;
-        --shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+        --bg: #0a1117;
+        --ink: #fbfcf7;
+        --muted: #b5bfca;
+        --line: rgba(255, 255, 255, 0.16);
+        --line-strong: rgba(255, 255, 255, 0.24);
+        --surface: rgba(10, 17, 23, 0.62);
+        --surface-soft: rgba(8, 14, 20, 0.7);
+        --surface-strong: rgba(255, 255, 255, 0.12);
+        --accent: #67e8f9;
+        --accent-2: #86efac;
+        --accent-3: #f9a8d4;
+        --accent-ink: #05201d;
+        --gradient-app: linear-gradient(135deg, #071319 0%, #0f2f2d 30%, #26345f 62%, #3a1426 100%);
+        --gradient-brand: linear-gradient(135deg, #67e8f9 0%, #86efac 52%, #fde68a 100%);
+        --gradient-panel: linear-gradient(135deg, rgba(103, 232, 249, 0.22), rgba(134, 239, 172, 0.14) 46%, rgba(249, 168, 212, 0.18) 100%);
+        --gradient-tile-a: linear-gradient(145deg, rgba(103, 232, 249, 0.24), rgba(255, 255, 255, 0.07));
+        --gradient-tile-b: linear-gradient(145deg, rgba(134, 239, 172, 0.22), rgba(255, 255, 255, 0.07));
+        --gradient-tile-c: linear-gradient(145deg, rgba(249, 168, 212, 0.2), rgba(255, 255, 255, 0.07));
+        --gradient-tile-d: linear-gradient(145deg, rgba(253, 230, 138, 0.18), rgba(255, 255, 255, 0.07));
+        --gradient-card: linear-gradient(150deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.045));
+        --gradient-word: linear-gradient(135deg, rgba(103, 232, 249, 0.12), rgba(134, 239, 172, 0.08));
+        --gradient-badge: linear-gradient(135deg, rgba(103, 232, 249, 0.26), rgba(134, 239, 172, 0.18));
+        --shadow: 0 22px 58px rgba(0, 0, 0, 0.34);
         --font-app: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         --font-fa: "SF Arabic", "Geeza Pro", "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, system-ui, sans-serif;
       }
@@ -34,9 +45,7 @@
         min-height: 100%;
         margin: 0;
         overflow-x: hidden;
-        background:
-          radial-gradient(circle at 50% -12%, rgba(125, 211, 252, 0.14), transparent 34%),
-          linear-gradient(180deg, #0e1116 0%, var(--bg) 58%, #07080b 100%);
+        background: var(--gradient-app);
         color: var(--ink);
         font-family: var(--font-app);
       }
@@ -101,12 +110,12 @@
         display: grid;
         place-items: center;
         border-radius: 8px;
-        background: var(--accent);
+        background: var(--gradient-brand);
         color: var(--accent-ink);
         font-family: var(--font-fa);
         font-size: 1.7rem;
         font-weight: 900;
-        box-shadow: 0 12px 28px rgba(125, 211, 252, 0.18);
+        box-shadow: 0 12px 28px rgba(103, 232, 249, 0.22);
       }
 
       h1,
@@ -159,7 +168,8 @@
         min-height: 44px;
         display: grid;
         place-items: center;
-        background: var(--surface);
+        background: var(--gradient-tile-a);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         font-family: var(--font-fa);
         font-size: 2rem;
         font-weight: 900;
@@ -170,9 +180,21 @@
           background 150ms ease;
       }
 
+      .alphabet-button:nth-child(4n + 2) {
+        background: var(--gradient-tile-b);
+      }
+
+      .alphabet-button:nth-child(4n + 3) {
+        background: var(--gradient-tile-c);
+      }
+
+      .alphabet-button:nth-child(4n) {
+        background: var(--gradient-tile-d);
+      }
+
       .alphabet-button:hover {
-        border-color: rgba(125, 211, 252, 0.48);
-        background: var(--surface-strong);
+        border-color: rgba(255, 255, 255, 0.36);
+        filter: brightness(1.12);
       }
 
       .alphabet-button:active,
@@ -184,7 +206,7 @@
       .alphabet-button:focus-visible,
       .word-card:focus-visible,
       .icon-button:focus-visible {
-        outline: 3px solid rgba(125, 211, 252, 0.36);
+        outline: 3px solid rgba(103, 232, 249, 0.36);
         outline-offset: 2px;
       }
 
@@ -209,13 +231,14 @@
         flex: 0 0 auto;
         display: grid;
         place-items: center;
-        background: var(--surface);
+        background: var(--gradient-card);
+        backdrop-filter: blur(16px);
         font-size: 1.4rem;
         font-weight: 950;
       }
 
       .icon-button.primary {
-        background: var(--accent);
+        background: var(--gradient-brand);
         color: var(--accent-ink);
         border-color: transparent;
       }
@@ -227,7 +250,10 @@
         padding: 20px;
         border: 1px solid var(--line-strong);
         border-radius: 8px;
-        background: var(--surface-soft);
+        background:
+          linear-gradient(135deg, rgba(9, 14, 22, 0.72), rgba(9, 14, 22, 0.5)),
+          var(--gradient-panel);
+        backdrop-filter: blur(18px);
         box-shadow: var(--shadow);
       }
 
@@ -267,7 +293,7 @@
       .sound-text {
         padding: 8px 12px;
         border-radius: 8px;
-        background: var(--surface-strong);
+        background: rgba(255, 255, 255, 0.12);
         color: var(--accent);
         font-size: 1.05rem;
         font-weight: 950;
@@ -277,7 +303,18 @@
       .section {
         margin-top: 26px;
         padding-top: 22px;
-        border-top: 1px solid var(--line-strong);
+        position: relative;
+      }
+
+      .section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
       }
 
       .section-title {
@@ -293,8 +330,8 @@
       .section-title span {
         padding: 5px 9px;
         border-radius: 999px;
-        background: rgba(125, 211, 252, 0.1);
-        color: var(--accent);
+        background: var(--gradient-badge);
+        color: var(--ink);
         font-size: 0.82rem;
         font-weight: 900;
       }
@@ -315,7 +352,10 @@
         padding: 15px;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: var(--surface-soft);
+        background:
+          linear-gradient(145deg, rgba(8, 14, 20, 0.66), rgba(8, 14, 20, 0.38)),
+          var(--gradient-card);
+        backdrop-filter: blur(14px);
       }
 
       .form-meta {
@@ -327,8 +367,8 @@
       .form-label {
         padding: 5px 8px;
         border-radius: 999px;
-        background: rgba(125, 211, 252, 0.1);
-        color: var(--accent);
+        background: var(--gradient-badge);
+        color: var(--ink);
         font-size: 0.78rem;
         font-weight: 950;
         text-transform: uppercase;
@@ -375,7 +415,10 @@
         gap: 14px;
         padding: 15px;
         text-align: left;
-        background: var(--surface);
+        background:
+          linear-gradient(135deg, rgba(8, 14, 20, 0.68), rgba(8, 14, 20, 0.4)),
+          var(--gradient-word);
+        backdrop-filter: blur(14px);
       }
 
       .word-card strong {
