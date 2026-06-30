@@ -10,6 +10,7 @@ yarn-debug.log*
 
 # Local tooling artifacts
 /node_modules/
+/.audio_tools/
 /.vite/
 /dist/
 /build/

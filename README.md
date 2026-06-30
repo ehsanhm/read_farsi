@@ -4,6 +4,8 @@ A mobile-friendly, static Farsi reading game for kids who already speak English
 and Farsi and are learning to read Farsi letters and simple words.
 
 The game is fully contained in `index.html` and is ready for GitHub Pages.
+Audio files live under `audio/`, so sounds work on GitHub Pages without relying
+on browser or device text-to-speech voices.
 
 ## GitHub Pages
 
